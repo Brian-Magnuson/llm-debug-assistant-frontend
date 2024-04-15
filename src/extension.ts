@@ -1,12 +1,11 @@
-import { commands, ExtensionContext } from "vscode";
-import { HelloWorldPanel } from "./panels/HelloWorldPanel";
+import { window, ExtensionContext } from "vscode";
+import { HelloWorldViewProvider } from "./views/HelloWorldViewProvider";
 
 export function activate(context: ExtensionContext) {
-  // Create the show hello world command
-  const showHelloWorldCommand = commands.registerCommand("hello-world.showHelloWorld", () => {
-    HelloWorldPanel.render(context.extensionUri);
-  });
-
-  // Add command to the extension context
-  context.subscriptions.push(showHelloWorldCommand);
+  context.subscriptions.push(
+    window.registerWebviewViewProvider(
+      HelloWorldViewProvider.viewType,
+      new HelloWorldViewProvider(context.extensionUri)
+    )
+  );
 }

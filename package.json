@@ -8,12 +8,24 @@
   },
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "hello-world.showHelloWorld",
-        "title": "Hello World (React + Vite): Show"
-      }
-    ]
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "helloWorld",
+          "title": "Hello World",
+          "icon": "$(person)"
+        }
+      ]
+    },
+    "views": {
+      "helloWorld": [
+        {
+          "type": "webview",
+          "id": "helloWorld.helloWorldView",
+          "name": "Hello World"
+        }
+      ]
+    }
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",
