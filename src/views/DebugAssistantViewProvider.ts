@@ -2,8 +2,8 @@ import { Disposable, Webview, WebviewView, WebviewViewProvider, window, Uri } fr
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 
-export class HelloWorldViewProvider implements WebviewViewProvider {
-  public static readonly viewType = 'helloWorld.helloWorldView';
+export class DebugAssistantViewProvider implements WebviewViewProvider {
+  public static readonly viewType = 'debugAssistant.view';
 
   private _view?: WebviewView;
 
@@ -27,7 +27,7 @@ export class HelloWorldViewProvider implements WebviewViewProvider {
       const text = message.text;
 
       switch (command) {
-        case "hello":
+        case "echo":
           // Code that should run in response to the hello message command
           window.showInformationMessage(text);
           return;
@@ -51,6 +51,8 @@ export class HelloWorldViewProvider implements WebviewViewProvider {
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
     // The CSS file from the React build output
     const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
+
+    const codiconsUri = webview.asWebviewUri(Uri.joinPath(extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
     // The JS file from the React build output
     const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
 
@@ -63,8 +65,9 @@ export class HelloWorldViewProvider implements WebviewViewProvider {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; font-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
+          <link href="${codiconsUri}" rel="stylesheet" />
           <title>Hello World</title>
         </head>
         <body>

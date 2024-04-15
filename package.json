@@ -21,8 +21,8 @@
       "helloWorld": [
         {
           "type": "webview",
-          "id": "helloWorld.helloWorldView",
-          "name": "Hello World"
+          "id": "debugAssistant.view",
+          "name": "Debug Assistant"
         }
       ]
     }
@@ -48,5 +48,9 @@
     "prettier": "^2.2.1",
     "typescript": "^4.1.3",
     "vscode-test": "^1.5.0"
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.35",
+    "@vscode/webview-ui-toolkit": "^1.4.0"
   }
 }

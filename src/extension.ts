@@ -1,11 +1,11 @@
 import { window, ExtensionContext } from "vscode";
-import { HelloWorldViewProvider } from "./views/HelloWorldViewProvider";
+import { DebugAssistantViewProvider } from "./views/DebugAssistantViewProvider";
 
 export function activate(context: ExtensionContext) {
   context.subscriptions.push(
     window.registerWebviewViewProvider(
-      HelloWorldViewProvider.viewType,
-      new HelloWorldViewProvider(context.extensionUri)
+      DebugAssistantViewProvider.viewType,
+      new DebugAssistantViewProvider(context.extensionUri)
     )
   );
 }
