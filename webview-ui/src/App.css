@@ -96,7 +96,7 @@ main {
   padding: 0.5rem;
 }
 
-.message:nth-child(even) {
+.message:nth-last-child(odd) {
   background: #262930;
 }
 

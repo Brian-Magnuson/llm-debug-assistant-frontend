@@ -6,26 +6,40 @@ import Loading from "./Loading";
 import "./App.css";
 
 function App() {
-  function handleHowdyClick() {
-    vscode.postMessage({
-      command: "echo",
-      text: inputValue,
-    });
-  }
 
   const [messages, setMessages] = React.useState<{ author: string, message: string }[]>([]);
   const [inputValue, setInputValue] = React.useState("");
 
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    window.addEventListener("message", (event) => {
+      const message = event.data;
+      if (message.command === "echo") {
+        postMessage({ author: message.author, message: message.text });
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      window.removeEventListener("message", () => { });
+    }
+  }, []);
 
   function postMessage(message: { author: string, message: string }) {
-    setMessages([message, ...messages]);
+    setMessages(prev => [message, ...prev]);
   }
 
-  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function handleFormSubmit(e?: React.FormEvent<HTMLFormElement>) {
+    e && e.preventDefault();
     if (inputValue) {
-      postMessage({ author: "Me", message: inputValue });
+      postMessage({ author: "You", message: inputValue });
+      setLoading(true);
+      vscode.postMessage({
+        command: "echo",
+        author: "You",
+        text: inputValue,
+      });
     }
     setInputValue("");
   }
@@ -36,10 +50,7 @@ function App() {
       setInputValue(prev => prev + '\n');
     }
     if (e.key === 'Enter' && !e.shiftKey) {
-      if (inputValue) {
-        postMessage({ author: "Me", message: inputValue });
-      }
-      setInputValue("");
+      handleFormSubmit();
     }
   }
 

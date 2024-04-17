@@ -24,12 +24,20 @@ export class DebugAssistantViewProvider implements WebviewViewProvider {
 
     webviewView.webview.onDidReceiveMessage(message => {
       const command = message.command;
-      const text = message.text;
 
       switch (command) {
         case "echo":
           // Code that should run in response to the hello message command
-          window.showInformationMessage(text);
+          const { text, author } = message;
+          // Send a message back to the webview after 1000 ms
+          setTimeout(() => {
+            webviewView.webview.postMessage({
+              command: "echo",
+              author: "VS Code",
+              text: `Hello, ${author}! You said: ${text}`,
+            });
+          }, 1000);
+
           return;
         // Add more switch case statements here as more webview message commands
         // are created within the webview context (i.e. inside media/main.js)
