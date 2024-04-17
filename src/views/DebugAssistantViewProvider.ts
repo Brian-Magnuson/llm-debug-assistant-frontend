@@ -1,6 +1,7 @@
 import { Disposable, Webview, WebviewView, WebviewViewProvider, window, Uri } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
+import { getSelectedText } from "../utilities/getSelectedText";
 
 export class DebugAssistantViewProvider implements WebviewViewProvider {
   public static readonly viewType = 'debugAssistant.view';
@@ -28,13 +29,18 @@ export class DebugAssistantViewProvider implements WebviewViewProvider {
       switch (command) {
         case "echo":
           // Code that should run in response to the hello message command
-          const { text, author } = message;
+          let { text } = message;
+          const selectedText = getSelectedText();
+          if (selectedText) {
+            text = `\`\`\`\n${selectedText}\n\`\`\`\n${text}`;
+          }
+
           // Send a message back to the webview after 1000 ms
           setTimeout(() => {
             webviewView.webview.postMessage({
               command: "echo",
               author: "VS Code",
-              text: `Hello, ${author}! You said: ${text}`,
+              text,
             });
           }, 1000);
 
@@ -76,7 +82,7 @@ export class DebugAssistantViewProvider implements WebviewViewProvider {
           <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; font-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
           <link href="${codiconsUri}" rel="stylesheet" />
-          <title>Hello World</title>
+          <title>LLM Debug Assistant</title>
         </head>
         <body>
           <div id="root"></div>

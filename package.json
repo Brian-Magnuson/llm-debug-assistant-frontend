@@ -11,14 +11,14 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "helloWorld",
-          "title": "Hello World",
-          "icon": "$(person)"
+          "id": "debugAssistant",
+          "title": "Debug Chat",
+          "icon": "$(comment)"
         }
       ]
     },
     "views": {
-      "helloWorld": [
+      "debugAssistant": [
         {
           "type": "webview",
           "id": "debugAssistant.view",
