@@ -17,6 +17,8 @@ function App() {
       const message = event.data;
       if (message.command === "echo") {
         postMessage({ author: message.author, message: message.text });
+      } else if (message.command === "response") {
+        postMessage({ author: message.author, message: message.text });
       }
       setLoading(false);
     });
@@ -36,7 +38,7 @@ function App() {
       postMessage({ author: "You", message: inputValue });
       setLoading(true);
       vscode.postMessage({
-        command: "echo",
+        command: "prompt",
         author: "You",
         text: inputValue,
       });

@@ -26,27 +26,43 @@ export class DebugAssistantViewProvider implements WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(message => {
       const command = message.command;
 
-      switch (command) {
-        case "echo":
-          // Code that should run in response to the hello message command
-          let { text } = message;
-          const selectedText = getSelectedText();
-          if (selectedText) {
-            text = `\`\`\`\n${selectedText}\n\`\`\`\n${text}`;
+      if (command === 'echo') {
+        const selectedText = getSelectedText();
+        let text = message.text;
+        if (selectedText) {
+          text = `\`\`\`\n${selectedText}\n\`\`\`\n${text}`;
+        }
+        setTimeout(() => {
+          webviewView.webview.postMessage({
+            command: "echo",
+            author: "VS Code",
+            text,
+          });
+        }, 1000);
+
+      } else if (command === 'prompt') {
+        const selectedText = getSelectedText();
+        let text = message.text;
+        if (selectedText) {
+          text = `\`\`\`\n${selectedText}\n\`\`\`\n${text}`;
+        }
+
+        fetch('http://localhost:9090/api/idk', {
+          method: 'POST',
+          body: JSON.stringify({ text }),
+          headers: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'Content-Type': 'application/json'
           }
-
-          // Send a message back to the webview after 1000 ms
-          setTimeout(() => {
-            webviewView.webview.postMessage({
-              command: "echo",
-              author: "VS Code",
-              text,
-            });
-          }, 1000);
-
-          return;
-        // Add more switch case statements here as more webview message commands
-        // are created within the webview context (i.e. inside media/main.js)
+        }).then(res => res.json()).then(data => {
+          webviewView.webview.postMessage({
+            command: "response",
+            author: data.author,
+            text: data.text,
+          });
+        }).catch(err => {
+          console.error(err);
+        });
       }
     });
   }
