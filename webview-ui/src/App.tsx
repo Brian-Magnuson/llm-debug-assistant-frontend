@@ -20,14 +20,7 @@ function App() {
 
       } else if (message.command === "partial-response") {
         setLoading(true);
-        if (messages.length > 0 && messages[0].author === "Assistant") {
-          setMessages(prev => {
-            prev[0].text = message.text;
-            return [...prev];
-          });
-        } else {
-          postMessage({ author: "Assistant", text: message.text });
-        }
+        postMessage({ author: "Assistant", text: message.text });
 
       } else if (message.command === "end-response") {
         setLoading(false);
@@ -41,7 +34,13 @@ function App() {
   }, []);
 
   function postMessage(message: { author: string, text: string }) {
-    setMessages(prev => [message, ...prev]);
+    setMessages(prev => {
+      if (prev[0]?.author === message.author) {
+        prev[0].text = message.text;
+        return [...prev];
+      }
+      return [message, ...prev];
+    });
   }
 
   function handleFormSubmit(e?: React.FormEvent<HTMLFormElement>) {
