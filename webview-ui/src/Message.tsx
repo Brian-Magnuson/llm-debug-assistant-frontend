@@ -2,10 +2,10 @@ import React from 'react';
 
 type MessageProps = {
   author: string;
-  message: string;
+  text: string;
 }
 export default function Message(props: MessageProps) {
-  const lines = props.message.split('\n');
+  const lines = props.text.split('\n');
   const renderedLines = lines.map((line, index) => {
     return <React.Fragment key={index}>
       {line} {index + 1 != lines.length && <br />}

@@ -7,7 +7,7 @@ import "./App.css";
 
 function App() {
 
-  const [messages, setMessages] = React.useState<{ author: string, message: string }[]>([]);
+  const [messages, setMessages] = React.useState<{ author: string, text: string }[]>([]);
   const [inputValue, setInputValue] = React.useState("");
 
   const [loading, setLoading] = React.useState(false);
@@ -16,11 +16,23 @@ function App() {
     window.addEventListener("message", (event) => {
       const message = event.data;
       if (message.command === "echo") {
-        postMessage({ author: message.author, message: message.text });
-      } else if (message.command === "response") {
-        postMessage({ author: message.author, message: message.text });
+        postMessage({ author: message.author, text: message.text });
+
+      } else if (message.command === "partial-response") {
+        setLoading(true);
+        if (messages.length > 0 && messages[0].author === "Assistant") {
+          setMessages(prev => {
+            prev[0].text = message.text;
+            return [...prev];
+          });
+        } else {
+          postMessage({ author: "Assistant", text: message.text });
+        }
+
+      } else if (message.command === "end-response") {
+        setLoading(false);
       }
-      setLoading(false);
+
     });
 
     return () => {
@@ -28,15 +40,14 @@ function App() {
     }
   }, []);
 
-  function postMessage(message: { author: string, message: string }) {
+  function postMessage(message: { author: string, text: string }) {
     setMessages(prev => [message, ...prev]);
   }
 
   function handleFormSubmit(e?: React.FormEvent<HTMLFormElement>) {
     e && e.preventDefault();
     if (inputValue) {
-      postMessage({ author: "You", message: inputValue });
-      setLoading(true);
+      postMessage({ author: "You", text: inputValue });
       vscode.postMessage({
         command: "prompt",
         author: "You",
@@ -62,7 +73,7 @@ function App() {
 
   function renderMessages() {
     return messages.map((message, index) => {
-      return <Message key={index} author={message.author} message={message.message} />;
+      return <Message key={index} author={message.author} text={message.text} />;
     });
   }
 

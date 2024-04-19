@@ -2,6 +2,7 @@ import { Disposable, Webview, WebviewView, WebviewViewProvider, window, Uri } fr
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { getSelectedText } from "../utilities/getSelectedText";
+import { connect, Socket } from "net";
 
 export class DebugAssistantViewProvider implements WebviewViewProvider {
   public static readonly viewType = 'debugAssistant.view';
@@ -17,11 +18,43 @@ export class DebugAssistantViewProvider implements WebviewViewProvider {
   ) {
     this._view = webviewView;
 
+    let socket: Socket | null = connect({ port: 12345 });
+
+    socket.on('data', (data) => {
+
+      const message = data.toString();
+
+      if (message.endsWith('<END>')) {
+        webviewView.webview.postMessage({
+          command: "end-response",
+        });
+        // console.log('End of message');
+      } else {
+        webviewView.webview.postMessage({
+          command: "partial-response",
+          author: "Assistant",
+          text: message,
+        });
+        // console.log('Received:', message);
+      }
+    });
+
+    socket.on('error', (error: any) => {
+      console.error('Socket error:', error);
+    });
+
     webviewView.webview.options = {
       enableScripts: true,
     };
 
     webviewView.webview.html = this._getWebviewContent(webviewView.webview, this._extensionUri);
+
+    webviewView.onDidDispose(() => {
+      if (socket) {
+        socket.end();
+        socket = null;
+      }
+    });
 
     webviewView.webview.onDidReceiveMessage(message => {
       const command = message.command;
@@ -47,22 +80,7 @@ export class DebugAssistantViewProvider implements WebviewViewProvider {
           text = `\`\`\`\n${selectedText}\n\`\`\`\n${text}`;
         }
 
-        fetch('http://localhost:9090/api/idk', {
-          method: 'POST',
-          body: JSON.stringify({ text }),
-          headers: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            'Content-Type': 'application/json'
-          }
-        }).then(res => res.json()).then(data => {
-          webviewView.webview.postMessage({
-            command: "response",
-            author: data.author,
-            text: data.text,
-          });
-        }).catch(err => {
-          console.error(err);
-        });
+        socket?.write(text);
       }
     });
   }
